@@ -4,7 +4,7 @@ import { Dialog, Transition } from "@headlessui/react";
 import { Fragment, useRef, useState } from "react";
 import { CameraIcon } from "@heroicons/react/outline";
 import { db, storage } from "../firebase";
-import { collection, serverTimestamp, updateDoc } from "@firebase/firestore"; 
+import { addDoc, doc, collection, serverTimestamp, updateDoc } from "@firebase/firestore"; 
 import { useSession } from "next-auth/react";
 import { ref, getDownloadURL, uploadString } from "@firebase/storage";
 
@@ -29,16 +29,19 @@ function Modal(){
         });
 
         const imageRef = ref(storage, `posts/${docRef.id}/image`);
+        console.log('mageRef', imageRef);
 
-        await uploadString(imageRef, selectedFile, "data_url").then(async snapshot => {
-            const downoladURL = await getDownloadURL(imageRef);
-            await updateDoc(doc(db, 'posts', docRef.id), {
-                image: downoladURL
-            })
+        await uploadString(imageRef, selectedFile, "data_url").then(
+            async (snapshot) => {
+                console.log('downoladURL1');
+                const downoladURL = await getDownloadURL(imageRef);
+                console.log('downoladURL2', downoladURL);
+
+                await updateDoc(doc(db, 'posts', docRef.id), { image: downoladURL })
         });
 
         setOpen(false);
-        useLoading(false);
+        setLoading(false);
         setSelectedFile(null);
     }
 
